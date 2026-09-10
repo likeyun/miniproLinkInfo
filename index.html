@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>小程序链接解析</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+    min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:#f5f7fa;
+    color:#1f2329;
+}
+.page{
+    width:100%;
+    max-width:960px;
+    margin:0 auto;
+    padding:60px 20px;
+}
+.header{
+    text-align:center;
+    margin-bottom:32px;
+}
+.logo{
+    width:64px;
+    height:64px;
+    margin:0 auto 16px;
+    border-radius:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#07c160,#20d77a);
+    box-shadow:0 12px 30px rgba(7,193,96,.2);
+}
+.logo svg{
+    width:34px;
+    height:34px;
+    fill:#fff;
+}
+.header h1{
+    font-size:28px;
+    font-weight:700;
+    margin-bottom:8px;
+}
+.header p{
+    color:#86909c;
+    font-size:14px;
+}
+.search-card{
+    background:#fff;
+    border:1px solid #e5e6eb;
+    border-radius:16px;
+    padding:24px;
+    box-shadow:0 8px 30px rgba(31,35,41,.05);
+}
+.label{
+    display:block;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:10px;
+}
+.input-wrap{
+    display:flex;
+    gap:12px;
+}
+.input-wrap input{
+    flex:1;
+    height:48px;
+    padding:10px 16px;
+    border:1px solid #dcdfe6;
+    border-radius:10px;
+    outline:none;
+    font-size:14px;
+    transition:.2s;
+}
+.input-wrap input:focus{
+    border-color:#07c160;
+    box-shadow:0 0 0 3px rgba(7,193,96,.1);
+}
+.input-wrap button{
+    width:120px;
+    height:48px;
+    border:0;
+    border-radius:10px;
+    background:#07c160;
+    color:#fff;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+.input-wrap button:hover{
+    background:#06ad56;
+}
+.input-wrap button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+.example{
+    margin-top:10px;
+    color:#86909c;
+    font-size:12px;
+    word-break:break-all;
+}
+.result{
+    display:none;
+    margin-top:24px;
+}
+.result.show{
+    display:block;
+}
+.app-card{
+    background:#fff;
+    border:1px solid #e5e6eb;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 8px 30px rgba(31,35,41,.05);
+}
+.app-top{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:24px;
+    border-bottom:1px solid #f0f1f2;
+}
+.app-avatar{
+    width:72px;
+    height:72px;
+    border-radius:16px;
+    object-fit:cover;
+    background:#f2f3f5;
+    border:1px solid #eee;
+}
+.app-name{
+    flex:1;
+    min-width:0;
+}
+.app-name h2{
+    font-size:21px;
+    margin-bottom:8px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+.tag{
+    display:inline-flex;
+    align-items:center;
+    height:26px;
+    padding:0 10px;
+    border-radius:6px;
+    background:#e8fff1;
+    color:#07a950;
+    font-size:12px;
+}
+.tag.gray{
+    background:#f2f3f5;
+    color:#606266;
+}
+.info-list{
+    padding:8px 24px 18px;
+}
+.info-row{
+    display:flex;
+    min-height:52px;
+    align-items:center;
+    border-bottom:1px solid #f5f5f5;
+}
+.info-row:last-child{
+    border-bottom:none;
+}
+.info-label{
+    width:130px;
+    flex-shrink:0;
+    color:#86909c;
+    font-size:14px;
+}
+.info-value{
+    flex:1;
+    color:#1f2329;
+    font-size:14px;
+    word-break:break-all;
+}
+.copy-btn{
+    margin-left:12px;
+    border:0;
+    background:#f2f3f5;
+    color:#4e5969;
+    height:30px;
+    padding:0 10px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+}
+.copy-btn:hover{
+    background:#e5e6eb;
+}
+.error{
+    display:none;
+    margin-top:20px;
+    padding:14px 16px;
+    border-radius:10px;
+    background:#fff2f0;
+    color:#d4380d;
+    border:1px solid #ffccc7;
+    font-size:14px;
+}
+.error.show{
+    display:block;
+}
+.loading{
+    display:none;
+    margin-top:20px;
+    text-align:center;
+    color:#86909c;
+    font-size:14px;
+}
+.loading.show{
+    display:block;
+}
+.spinner{
+    width:18px;
+    height:18px;
+    display:inline-block;
+    vertical-align:-4px;
+    margin-right:8px;
+    border:2px solid #ddd;
+    border-top-color:#07c160;
+    border-radius:50%;
+    animation:spin .7s linear infinite;
+}
+@keyframes spin{
+    to{transform:rotate(360deg)}
+}
+.footer{
+    text-align:center;
+    margin-top:26px;
+    color:#b0b4ba;
+    font-size:12px;
+}
+@media(max-width:600px){
+    .page{padding:32px 14px}
+    .header h1{font-size:24px}
+    .search-card{padding:18px}
+    .input-wrap{flex-direction:column}
+    .input-wrap button{width:100%}
+    .app-top{padding:18px}
+    .app-avatar{width:62px;height:62px}
+    .info-list{padding:6px 18px 14px}
+    .info-row{align-items:flex-start;padding:13px 0}
+    .info-label{width:95px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+    <div class="header">
+        <div class="logo">
+            <svg viewBox="0 0 24 24">
+                <path d="M8.4 3C4.31 3 1 5.83 1 9.32c0 1.99 1.08 3.77 2.78 4.93l-.7 2.05 2.45-1.2c.9.3 1.87.47 2.87.47.3 0 .6-.02.9-.05-.2-.58-.3-1.2-.3-1.84 0-3.45 3.2-6.24 7.15-6.24.2 0 .4.01.6.03C15.82 4.87 12.43 3 8.4 3zm-2.5 4.55a.9.9 0 110-1.8.9.9 0 010 1.8zm5.02 0a.9.9 0 110-1.8.9.9 0 010 1.8zM23 13.68c0-2.95-2.87-5.34-6.4-5.34s-6.4 2.39-6.4 5.34 2.87 5.34 6.4 5.34c.86 0 1.68-.14 2.43-.4l2.07 1.02-.59-1.74c1.52-.98 2.49-2.5 2.49-4.22zm-8.55-1.48a.78.78 0 110-1.56.78.78 0 010 1.56zm4.31 0a.78.78 0 110-1.56.78.78 0 010 1.56z"/>
+            </svg>
+        </div>
+        <h1>小程序链接解析</h1>
+        <p>解析微信小程序链接并获取小程序基础信息</p>
+    </div>
+
+    <div class="search-card">
+        <label class="label">小程序链接</label>
+        <div class="input-wrap">
+            <input id="linkInput" type="text" placeholder="请输入 #小程序://xxx/xxxx">
+            <button id="searchBtn" onclick="searchWeapp()">立即解析</button>
+        </div>
+        <div class="example">示例：#小程序://申通快递/tBQdc1ZUWFMNVqE</div>
+    </div>
+
+    <div id="loading" class="loading">
+        <span class="spinner"></span>正在获取小程序信息...
+    </div>
+
+    <div id="error" class="error"></div>
+
+    <div id="result" class="result">
+        <div class="app-card">
+            <div class="app-top">
+                <img id="avatar" class="app-avatar" src="" alt="">
+                <div class="app-name">
+                    <h2 id="nickname">-</h2>
+                    <div class="tags">
+                        <span id="releaseTag" class="tag">已发布</span>
+                        <span class="tag gray">微信小程序</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-list">
+                <div class="info-row">
+                    <div class="info-label">小程序名称</div>
+                    <div id="nameValue" class="info-value">-</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">AppID</div>
+                    <div id="appid" class="info-value">-</div>
+                    <button class="copy-btn" onclick="copyValue('appid')">复制</button>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">原始 ID</div>
+                    <div id="username" class="info-value">-</div>
+                    <button class="copy-btn" onclick="copyValue('username')">复制</button>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">首页路径</div>
+                    <div id="mainPage" class="info-value">-</div>
+                    <button class="copy-btn" onclick="copyValue('mainPage')">复制</button>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">解析路径</div>
+                    <div id="weappPath" class="info-value">-</div>
+                    <button class="copy-btn" onclick="copyValue('weappPath')">复制</button>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">服务类型</div>
+                    <div id="serviceType" class="info-value">-</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">担保标识</div>
+                    <div id="guarantee" class="info-value">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">微信小程序链接解析工具</div>
+</div>
+
+<script>
+
+const API_URL = './api.php';
+
+async function searchWeapp(){
+    const input = document.getElementById('linkInput');
+    const btn = document.getElementById('searchBtn');
+    const loading = document.getElementById('loading');
+    const result = document.getElementById('result');
+    const error = document.getElementById('error');
+
+    const link = input.value.trim();
+
+    if(!link){
+        showError('请输入小程序链接');
+        return;
+    }
+
+    error.classList.remove('show');
+    result.classList.remove('show');
+    loading.classList.add('show');
+    btn.disabled = true;
+    btn.innerText = '解析中...';
+
+    try{
+        const res = await fetch(API_URL + '?link=' + encodeURIComponent(link));
+        const json = await res.json();
+
+        // 兼容 PHP 外层 data 包装
+        const data = json.data || json;
+
+        if(!data.base_resp || data.base_resp.ret !== 0){
+            throw new Error(data.base_resp?.err_msg || json.msg || '解析失败');
+        }
+
+        if(!data.weapp){
+            throw new Error('未获取到小程序信息');
+        }
+
+        renderResult(data);
+    }catch(e){
+        showError(e.message || '请求接口失败');
+    }finally{
+        loading.classList.remove('show');
+        btn.disabled = false;
+        btn.innerText = '立即解析';
+    }
+}
+
+function renderResult(data){
+    const weapp = data.weapp;
+
+    const imageUrl = (weapp.headimg_url || '').replace(/^http:/,'https:');
+
+    document.getElementById('avatar').src =
+        './imageProxy.php?url=' + encodeURIComponent(imageUrl);
+
+    document.getElementById('nickname').innerText =
+        weapp.nickname || '-';
+
+    document.getElementById('nameValue').innerText =
+        weapp.nickname || '-';
+
+    document.getElementById('appid').innerText =
+        weapp.appid || '-';
+
+    document.getElementById('username').innerText =
+        weapp.username || '-';
+
+    document.getElementById('mainPage').innerText =
+        weapp.main_page || '-';
+
+    document.getElementById('weappPath').innerText =
+        data.weapp_path || '-';
+
+    document.getElementById('serviceType').innerText =
+        getServiceType(weapp.service_type);
+
+    document.getElementById('guarantee').innerText =
+        weapp.has_guarantee_flag ? '有' : '无';
+
+    const releaseTag = document.getElementById('releaseTag');
+
+    if(Number(weapp.released) === 1){
+        releaseTag.innerText = '已发布';
+        releaseTag.style.background = '#e8fff1';
+        releaseTag.style.color = '#07a950';
+    }else{
+        releaseTag.innerText = '未发布';
+        releaseTag.style.background = '#fff7e8';
+        releaseTag.style.color = '#d46b08';
+    }
+
+    document.getElementById('result').classList.add('show');
+}
+
+function getServiceType(type){
+    const map = {
+        0:'普通小程序',
+        1:'小游戏'
+    };
+    return map[type] || '未知';
+}
+
+function showError(msg){
+    const el = document.getElementById('error');
+    el.innerText = msg;
+    el.classList.add('show');
+}
+
+async function copyValue(id){
+    const text = document.getElementById(id).innerText;
+
+    try{
+        await navigator.clipboard.writeText(text);
+        showToast('复制成功');
+    }catch(e){
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+        showToast('复制成功');
+    }
+}
+
+function showToast(msg){
+    const div = document.createElement('div');
+
+    div.innerText = msg;
+
+    Object.assign(div.style,{
+        position:'fixed',
+        left:'50%',
+        top:'50%',
+        transform:'translate(-50%,-50%)',
+        background:'rgba(0,0,0,.75)',
+        color:'#fff',
+        padding:'10px 18px',
+        borderRadius:'8px',
+        fontSize:'14px',
+        zIndex:'99999'
+    });
+
+    document.body.appendChild(div);
+
+    setTimeout(()=>div.remove(),1200);
+}
+
+document.getElementById('linkInput').addEventListener('keydown',e=>{
+    if(e.key === 'Enter'){
+        searchWeapp();
+    }
+});
+</script>
+</body>
+</html>
