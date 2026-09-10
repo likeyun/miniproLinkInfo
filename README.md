@@ -1,9 +1,9 @@
 # miniproLinkInfo
 通过小程序链接（#小程序://）提取小程序详细信息
 
-例如：#小程序://企查查/WLgi1iIchDtLwQu
+**例如：#小程序://企查查/WLgi1iIchDtLwQu**
 
-通过这种只能在微信内打开的小程序专用链接，提取小程序Appid\path等信息
+通过这种只能在微信内打开的小程序专用链接，提取小程序`Appid\path\query`等信息
 
 # 技术原理
 
@@ -19,6 +19,10 @@
 `imageProxy.php`是图片代理，因为小程序头像图片地址防盗链，无法正常渲染，需使用代理绕过防盗链。
 
 ![image](https://p4.ssl.qhimg.com/t11b673bcd60343868023413a73.png)
+
+# 须知
+1. 使用这个接口导致你的公众号被封，你自己承担；
+2. cookie、token、fingerprint等参数会过期，自己想办法持久化更新；
 
 # 作者
 liKeYun
